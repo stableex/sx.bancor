@@ -4,6 +4,41 @@
 #include <math.h>
 
 namespace bancor {
+
+    struct [[eosio::table("settings")]] settings {
+        name            smart_contract;
+        asset           smart_currency;
+        bool            smart_enabled;
+        bool            enabled;
+        name            network;
+        bool            require_balance;
+        uint64_t        max_fee;
+        uint64_t        fee;
+
+        uint64_t primary_key() const { return currency.code().raw(); }
+    };
+
+    struct [[eosio::table("reserves")]] reserves {
+        name        contract;
+        asset       currency;
+        uint64_t    ratio;
+        bool        p_enabled
+
+        uint64_t primary_key() const { return currency.code().raw(); }
+    };
+
+    struct [[eosio::table("converter.v2")]] converter {
+        symbol                              currency;
+        name                                owner;
+        uint64_t                            fee;
+        map<symbol_code, uint64_t>          reserve_weights;
+        map<symbol_code, extended_asset>    reserve_balances;
+        map<name, bool>                     protocol_features;
+        map<name, string>                   metadata_json;
+
+        uint64_t primary_key() const { return currency.code().raw(); }
+    };
+
     /**
      * ## STATIC `get_amount_out`
      *
@@ -16,7 +51,7 @@ namespace bancor {
      * - `{uint64_t} reserve_weight_in` - reserve input weight
      * - `{uint64_t} reserve_out` - reserve output
      * - `{uint64_t} reserve_weight_out` - reserve output weight
-     * - `{uint8_t} [fee=30]` - (optional) trading fee (pips 1/100 of 1%)
+     * - `{uint8_t} fee` - (optional) trading fee (pips 1/100 of 1%)
      *
      * ### example
      *
@@ -34,7 +69,7 @@ namespace bancor {
      * // => 27328
      * ```
      */
-    static uint64_t get_amount_out( const uint64_t amount_in, const uint64_t reserve_in, const uint64_t reserve_weight_in, const uint64_t reserve_out, const uint64_t reserve_weight_out, const uint8_t fee = 30 )
+    static uint64_t get_amount_out( const uint64_t amount_in, const uint64_t reserve_in, const uint64_t reserve_weight_in, const uint64_t reserve_out, const uint64_t reserve_weight_out, const uint8_t fee )
     {
         // checks
         eosio::check(amount_in > 0, "sx.bancor: INSUFFICIENT_INPUT_AMOUNT");
