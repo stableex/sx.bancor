@@ -1,0 +1,6 @@
+nodeos
+stderr
+*.out
+*.wasm
+*.abi
+node_modules
