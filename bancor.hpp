@@ -248,7 +248,6 @@ namespace bancor {
             auto suffix = pair_id.substr( _bancorcnvrtr_act.length()+1);
             bancor::converter _converter( name{_bancorcnvrtr_act}, name{_bancorcnvrtr_act}.value );
 
-            print("Pair: ", pair_id, ", Suffix: ", suffix);
             auto row = _converter.get(symbol_code{suffix}.raw(), "sx.bancor: Invalid pair_id");
             for( auto& [symcode, weight] : row.reserve_weights ){
                 check(row.reserve_balances.count(symcode), "sx.bancor: Invalid pair_id: " + pair_id);
