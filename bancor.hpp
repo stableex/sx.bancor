@@ -88,16 +88,11 @@ namespace bancor {
         eosio::check(amount_in > 0, "sx.bancor: INSUFFICIENT_INPUT_AMOUNT");
         eosio::check(reserve_in > 0 && reserve_out > 0, "sx.bancor: INSUFFICIENT_LIQUIDITY");
         eosio::check(reserve_weight_in > 0 && reserve_weight_out > 0, "sx.bancor: INVALID_WEIGHT");
-        eosio::check(reserve_weight_in == reserve_weight_out, "sx.bancor: Equal weights supported only");
 
         // calculations
-        // const double weight_ratio = (static_cast<double>(reserve_weight_in) / reserve_weight_out);
-        // const double amount_in_with_fee = amount_in * (10000 - fee);
-        // const double numerator = (reserve_in * 10000) / ((reserve_in * 10000) + amount_in_with_fee);
-        // const double denominator = 1 - pow(numerator, weight_ratio);
-        // const uint64_t amount_out = reserve_out * denominator;
+        double weight_ratio = static_cast<double>(reserve_weight_in) / reserve_weight_out;
+        auto amount_out = reserve_out * pow ( static_cast<double>(amount_in) / (reserve_in + amount_in), weight_ratio ) ;
 
-        auto amount_out = static_cast<double>(amount_in) / (reserve_in + amount_in) * reserve_out;
         return amount_out  * pow ( 1 - static_cast<double> (fee) / 1000000, 2);
     }
 
