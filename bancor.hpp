@@ -53,9 +53,7 @@ namespace bancor {
     /**
      * ## STATIC `get_amount_out`
      *
-     * Given an input amount of an asset and pair reserves, returns the maximum output amount of the other asset
-     * Using simplified formula that assumes weights are equal and no intermidiate token, i.e. BNTUSD involved
-     * see https://github.com/bancorprotocol/contracts_eos/blob/master/contracts/eos/BancorConverter/src/convert.cpp#L68-L88
+     * Given an input amount of an asset and pair reserves, returns the output amount of the other asset
      *
      * ### params
      *
@@ -132,12 +130,8 @@ namespace bancor {
         check(false, "sx.bancor: TODO");
         eosio::check(amount_out > 0, "sx.bancor: INSUFFICIENT_OUTPUT_AMOUNT");
         eosio::check(reserve_in > 0 && reserve_out > 0, "sx.bancor: INSUFFICIENT_LIQUIDITY");
-        const double weight_ratio = static_cast<double>(reserve_weight_in) / reserve_weight_out;
-        const double numerator = static_cast<double>(reserve_in) *  amount_out * 10000;
-        const double denominator = ((reserve_out - amount_out) * (10000 - fee)) * weight_ratio;
-        const uint64_t amount_in = 1 + ( numerator / denominator);
 
-        return amount_in;
+        return 0;
     }
 
     /**
@@ -176,6 +170,29 @@ namespace bancor {
         return amount_b;
     }
 
+    /**
+     * ## STATIC `is_legacy`
+     *
+     * Given pair_id returns whether it's a legacy implementation
+     *
+     * ### params
+     *
+     * - `{string} pair_id` - pair_id, i.e. "bancorc11154", "bancorcnvrtr:USDBNT"
+     *
+     * ### example
+     *
+     * ```c++
+     * bool legacy = bancor::is_legacy( "bancorcnvrtr:USDBNT" );
+     * // => false
+     * ```
+     */
+    static uint64_t is_legacy( const string& pair_id )
+    {
+        return pair_id.find(_bancorcnvrtr_act) != 0;
+    }
+
+
+namespace legacy {
 
     /**
      * ## STATIC `get_fee`
@@ -184,7 +201,7 @@ namespace bancor {
      *
      * ### params
      *
-     * - `{pair_id} ` - pair id. Either contract name for old pools, i.e bnt2eoscnvrt, or bancorcnvrtr:XXXXXX for new pools
+     * - `{pair_id} ` - name for conversion contract, i.e. bnt2eoscnvrt
      *
      * ### returns
      *
@@ -193,28 +210,14 @@ namespace bancor {
      * ### example
      *
      * ```c++
-     * const uint64_t fee = bancor::get_fee("bancorc11154"_n);
-     * // => 20
+     * const uint64_t fee = bancor::legacy::get_fee("bancorc11154");
+     * // => 2000
      * ```
      */
-    static uint64_t get_fee( const string pair_id )
+    static uint64_t get_fee( const string& pair_id )
     {
-        uint64_t fee = 0;
-
-        if(pair_id.find(_bancorcnvrtr_act) == 0) {
-            auto suffix = pair_id.substr( _bancorcnvrtr_act.length() + 1 );
-
-            bancor::converter _converter( name{_bancorcnvrtr_act}, name{_bancorcnvrtr_act}.value );
-            auto row = _converter.get(symbol_code(suffix).raw(), "sx.bancor: Invalid pair_id");
-            fee = row.fee;
-        }
-        else {
-            bancor::settings _settings( name{pair_id}, name{pair_id}.value );
-            auto config = _settings.get();
-            fee = config.fee;
-        }
-
-        return fee;
+        bancor::settings _settings( name{pair_id}, name{pair_id}.value );
+        return _settings.get().fee;
     }
 
     /**
@@ -224,7 +227,7 @@ namespace bancor {
      *
      * ### params
      *
-     * - `{string} pair_id` - pair id. Either contract name for old pools, i.e bnt2eoscnvrt, or bancorcnvrtr:XXXXXX for new pools
+     * - `{string} pair_id` - name for conversion contract, i.e. bnt2eoscnvrt
      *
      * ### returns
      *
@@ -233,40 +236,93 @@ namespace bancor {
      * ### example
      *
      * ```c++
-     * const name contract = "bancorc11123"_n;
      *
-     * const auto [reserve0, reserve1] = bancor::get_reserves( contract );
+     * const auto [reserve0, reserve1] = bancor::legacy::get_reserves( "bnt2eoscnvrt" );
      * // reserve0 => {"4638.535 IQ", 50000}
      * // reserve1 => {"13614.8381 BNT", 50000}
      * ```
      */
-    static vector<pair<asset, uint64_t>> get_reserves( const string pair_id )
+    static vector<pair<asset, uint64_t>> get_reserves( const string& pair_id )
     {
-        vector<pair<asset, uint64_t>> res;
+        check(is_account(name{pair_id}), "sx.bancor: Bad account");
 
-        if(pair_id.find(_bancorcnvrtr_act) == 0) {
-            auto suffix = pair_id.substr( _bancorcnvrtr_act.length()+1);
-            bancor::converter _converter( name{_bancorcnvrtr_act}, name{_bancorcnvrtr_act}.value );
+        vector<pair<asset, uint64_t>> reserves;
+        bancor::reserves _reserves( name{pair_id}, name{pair_id}.value );
 
-            auto row = _converter.get(symbol_code{suffix}.raw(), "sx.bancor: Invalid pair_id");
-            for( auto& [symcode, weight] : row.reserve_weights ){
-                check(row.reserve_balances.count(symcode), "sx.bancor: Invalid pair_id: " + pair_id);
-                res.push_back( {row.reserve_balances.at(symcode).quantity, weight} );
-            }
-        }
-        else {
-
-            check(is_account(name{pair_id}), "sx.bancor: Bad account");
-
-            bancor::reserves _reserves( name{pair_id}, name{pair_id}.value );
-
-            for(auto& row : _reserves){
-                auto balance = eosio::token::get_balance(row.contract, name{pair_id}, row.currency.symbol.code());
-                res.push_back({ balance, row.ratio });
-            }
+        for(auto& row : _reserves){
+            auto balance = eosio::token::get_balance(row.contract, name{pair_id}, row.currency.symbol.code());
+            reserves.push_back({ balance, row.ratio });
         }
 
-        return res;
+        return reserves;
+    }
+}
+
+namespace multi {
+
+    /**
+     * ## STATIC `get_fee`
+     *
+     * Get total fee
+     *
+     * ### params
+     *
+     * - `{pair_id} ` - pair id = bancorcnvrtr:XXXXXX, where XXXXXX - pool name, i.e. "bancorcnvrtr:USDBNT"
+     *
+     * ### returns
+     *
+     * - `{uint64_t}` - total fee (trade + protocol)
+     *
+     * ### example
+     *
+     * ```c++
+     * const uint64_t fee = bancor::multi::get_fee("bancorcnvrtr:USDBNT");
+     * // => 2000
+     * ```
+     */
+    static uint64_t get_fee( const string& pair_id )
+    {
+        auto suffix = pair_id.substr( _bancorcnvrtr_act.length() + 1 );
+
+        bancor::converter _converter( name{_bancorcnvrtr_act}, name{_bancorcnvrtr_act}.value );
+        return _converter.get(symbol_code(suffix).raw(), "sx.bancor: Invalid pair_id").fee;
     }
 
+    /**
+     * ## STATIC `get_reserves`
+     *
+     * Get reserves for a contract
+     *
+     * ### params
+     *
+     * - `{string} pair_id` - pair id = bancorcnvrtr:XXXXXX, where XXXXXX - pool name, i.e. bancorcnvrtr:USDBNT
+     *
+     * ### returns
+     *
+     * - `{vector<pair<asset, uint64_t>>}` - vector of reserve assets as {reserve, weight} pair
+     *
+     * ### example
+     *
+     * ```c++
+     *
+     * const auto reserves = bancor::multi::get_reserves( "bancorcnvrtr:USDBNT" );
+     * // reserves => [{"4638.535 IQ", 50000}, {"13614.8381 BNT", 50000}]
+     * ```
+     */
+    static vector<pair<asset, uint64_t>> get_reserves( const string& pair_id )
+    {
+        check(pair_id.find(_bancorcnvrtr_act)==0, "sx.bancor: Invalid pair_id: " + pair_id);
+
+        vector<pair<asset, uint64_t>> reserves;
+        auto suffix = pair_id.substr( _bancorcnvrtr_act.length()+1);
+        bancor::converter _converter( name{_bancorcnvrtr_act}, name{_bancorcnvrtr_act}.value );
+
+        auto row = _converter.get(symbol_code{suffix}.raw(), "sx.bancor: Invalid pair_id");
+        for( auto& [symcode, weight] : row.reserve_weights ){
+            check(row.reserve_balances.count(symcode), "sx.bancor: Invalid pair_id: " + pair_id);
+            reserves.push_back( {row.reserve_balances.at(symcode).quantity, weight} );
+        }
+        return reserves;
+    }
+}
 }
