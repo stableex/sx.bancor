@@ -27,6 +27,29 @@ const uint64_t out = bancor::get_amount_out( amount_in,
 // => 3732206312408
 ```
 
+**Bancor Multi Converter**
+
+```c++
+#include "bancor.multi.hpp"
+
+// Inputs
+const uint64_t amount_in = 1000000;
+const uint64_t reserve_in = 578125412;
+const uint64_t reserve_out = 2170087186740517;
+const uint64_t reserve_weight_in = 500000;
+const uint64_t reserve_weight_out = 500000;
+const uint64_t fee = 2000;
+
+// Calculation
+const uint64_t out = bancor::get_amount_out( amount_in,
+                                             reserve_in,
+                                             reserve_weight_in,
+                                             reserve_out,
+                                             reserve_weight_out,
+                                             fee );
+// => 3732206312408
+```
+
 ## Table of Content
 
 - [STATIC `get_amount_out`](#static-get_amount_out)
@@ -155,8 +178,8 @@ Get reserve from a currency
 ```c++
 const bancor::reserve reserve0 = bancor::multi::get_reserve( {"EOSBNT"}, {"EOS"} );
 const bancor::reserve reserve1 = bancor::multi::get_reserve( {"EOSBNT"}, {"BNT"} );
-// reserve0 => {"balance": {"contract": "eosio.token", "balance": "57988.4155 EOS"}, "weight": 500000}
-// reserve1 => {"balance": {"contract": "bntbntbntbnt", "balance": "216452.6259891919 BNT"}, "weight": 500000}
+// reserve0 => {"contract": "eosio.token", "weight": 500000, "balance": "57988.4155 EOS"}
+// reserve1 => {"contract": "bntbntbntbnt", "weight": 500000, "balance": "216452.6259891919 BNT"}
 ```
 
 ## STATIC `get_reserves`
@@ -190,6 +213,26 @@ This table stores the reserve balances and related information for the reserves 
 - `{map<name, bool>} protocol_features` - [optional] protocol features for converter
 - `{map<name, string>} metadata_json` - [optional] additional metadata for converter
 
+### example
+
+```json
+{
+    "currency": "4,EOSBNT",
+    "owner": "guztoojqgege",
+    "fee": 2000,
+    "reserve_weights": [
+        { "key": "EOS", "value": 500000 },
+        { "key": "BNT", "value": 500000 }
+    ],
+    "reserve_balances": [
+        { "key": "EOS", "value": { "quantity": "58647.1775 EOS", "contract": "eosio.token" } },
+        { "key": "BNT", "value": { "quantity": "214045.8934706095 BNT", "contract": "bntbntbntbnt" } }
+    ],
+    "protocol_features": [],
+    "metadata_json": []
+}
+```
+
 ## TABLE `settings`
 
 This table stores the global settings affecting all the converters in this contract
@@ -199,7 +242,18 @@ This table stores the global settings affecting all the converters in this contr
 - `{uint64_t} max_fee` - maximum conversion fee for converters in this contract
 - `{name} multi_token` - account name of contract for relay tokens
 - `{name} network` - account name of the bancor network contract
-- `{name} staking` - account name of contract for voting and staking
+- `{name} [staking=""]` - account name of contract for voting and staking
+
+### example
+
+```json
+{
+    "max_fee": 30000,
+    "multi_token": "smarttokens1",
+    "network": "thisisbancor",
+    "staking": ""
+}
+```
 
 ## STRUCT `reserve`
 
@@ -208,3 +262,13 @@ This table stores the global settings affecting all the converters in this contr
 - `{name} contract` - reserve token contract
 - `{asset} balance` - amount in the reserve
 - `{uint64_t} weight` - reserve weight relative to the other reserves
+
+### example
+
+```json
+{
+    "contract": "eosio.token",
+    "balance": "58647.1775 EOS",
+    "weight": 500000
+}
+```

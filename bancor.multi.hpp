@@ -30,6 +30,16 @@ namespace multi {
      * - `{name} contract` - reserve token contract
      * - `{asset} balance` - amount in the reserve
      * - `{uint64_t} weight` - reserve weight relative to the other reserves
+     *
+     * ### example
+     *
+     * ```json
+     * {
+     *     "contract": "eosio.token",
+     *     "balance": "58647.1775 EOS",
+     *     "weight": 500000
+     * }
+     * ```
      */
     struct reserve {
         name        contract;
@@ -48,6 +58,17 @@ namespace multi {
      * - `{name} multi_token` - account name of contract for relay tokens
      * - `{name} network` - account name of the bancor network contract
      * - `{name} staking` - account name of contract for voting and staking
+     *
+     * ### example
+     *
+     * ```json
+     * {
+     *     "max_fee": 30000,
+     *     "multi_token": "smarttokens1",
+     *     "network": "thisisbancor",
+     *     "staking": ""
+     * }
+     * ```
      */
     struct [[eosio::table("settings")]] settings_row {
         uint64_t    max_fee;
@@ -71,6 +92,26 @@ namespace multi {
      * - `{map<symbol_code, extended_asset>} reserve_balances` - balances in each reserve
      * - `{map<name, bool>} protocol_features` - [optional] protocol features for converter
      * - `{map<name, string>} metadata_json` - [optional] additional metadata for converter
+     *
+     * ### example
+     *
+     * ```json
+     * {
+     *     "currency": "4,EOSBNT",
+     *     "owner": "guztoojqgege",
+     *     "fee": 2000,
+     *     "reserve_weights": [
+     *         { "key": "EOS", "value": 500000 },
+     *         { "key": "BNT", "value": 500000 }
+     *     ],
+     *     "reserve_balances": [
+     *         { "key": "EOS", "value": { "quantity": "58647.1775 EOS", "contract": "eosio.token" } },
+     *         { "key": "BNT", "value": { "quantity": "214045.8934706095 BNT", "contract": "bntbntbntbnt" } }
+     *     ],
+     *     "protocol_features": [],
+     *     "metadata_json": []
+     * }
+     * ```
      */
     struct [[eosio::table("converter.v2")]] converter_row {
         symbol                              currency;
@@ -124,8 +165,8 @@ namespace multi {
      * ```c++
      * const bancor::reserve reserve0 = bancor::multi::get_reserve( {"EOSBNT"}, {"EOS"} );
      * const bancor::reserve reserve1 = bancor::multi::get_reserve( {"EOSBNT"}, {"BNT"} );
-     * // reserve0 => {"balance": {"contract": "eosio.token", "balance": "57988.4155 EOS"}, "weight": 500000}
-     * // reserve1 => {"balance": {"contract": "bntbntbntbnt", "balance": "216452.6259891919 BNT"}, "weight": 500000}
+     * // reserve0 => {"contract": "eosio.token", "weight": 500000, "balance": "57988.4155 EOS"}
+     * // reserve1 => {"contract": "bntbntbntbnt", "weight": 500000, "balance": "216452.6259891919 BNT"}
      * ```
      */
     static bancor::multi::reserve get_reserve( const symbol_code currency, const symbol_code reserve, const name code = bancor::multi::code )

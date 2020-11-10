@@ -28,6 +28,16 @@ namespace legacy {
      * - `{name} contract` - reserve token contract
      * - `{asset} balance` - amount in the reserve
      * - `{uint64_t} weight` - reserve weight relative to the other reserves
+     *
+     * ### example
+     *
+     * ```json
+     * {
+     *     "contract": "eosio.token",
+     *     "balance": "58647.1775 EOS",
+     *     "weight": 500000
+     * }
+     * ```
      */
     struct reserve {
         name        contract;
@@ -50,6 +60,21 @@ namespace legacy {
      * - `{bool} require_balance` - require creating new balance for the calling account should fail
      * - `{uint64_t} max_fee` - maximum conversion fee percentage, 0-30000, 4-pt precision a la eosio.asset
      * - `{uint64_t} fee` - conversion fee for this converter
+     *
+     * ### example
+     *
+     * ```json
+     * {
+     *     "smart_contract": "bnt2eosrelay",
+     *     "smart_currency": "0.0000000000 BNTEOS",
+     *     "smart_enabled": true,
+     *     "enabled": true,
+     *     "network": "thisisbancor",
+     *     "require_balance": false,
+     *     "max_fee": 30000,
+     *     "fee": 2000
+     * }
+     * ```
      */
     struct [[eosio::table("settings")]] settings_row {
         name            smart_contract;
@@ -74,6 +99,17 @@ namespace legacy {
      * - `{asset} currency` - Symbol of the tokens in this reserve
      * - `{uint64_t} ratio` - Reserve ratio
      * - `{bool} p_enabled` - Are transactions enabled on this reserve
+     *
+     * ### example
+     *
+     * ```json
+     * {
+     *     "contract": "eosio.token",
+     *     "currency": "0.0000 EOS",
+     *     "ratio": 500000,
+     *     "p_enabled": true
+     * }
+     * ```
      */
     struct [[eosio::table("reserves")]] reserves_row {
         name        contract;
