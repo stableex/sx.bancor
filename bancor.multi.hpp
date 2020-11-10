@@ -28,8 +28,8 @@ namespace multi {
      * ### params
      *
      * - `{name} contract` - reserve token contract
-     * - `{uint64_t} weight` - reserve weight relative to the other reserves
      * - `{asset} balance` - amount in the reserve
+     * - `{uint64_t} weight` - reserve weight relative to the other reserves
      */
     struct reserve {
         name        contract;

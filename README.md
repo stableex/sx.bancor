@@ -10,12 +10,12 @@
 #include "bancor.hpp"
 
 // Inputs
-const uint64_t amount_in = 10000;
-const uint64_t reserve_in = 45851931234;
-const uint64_t reserve_weight_in = 50000;
-const uint64_t reserve_out = 125682033533;
-const uint64_t reserve_weight_out = 50000;
-const uint8_t fee = 30;
+const uint64_t amount_in = 1000000;
+const uint64_t reserve_in = 578125412;
+const uint64_t reserve_out = 2170087186740517;
+const uint64_t reserve_weight_in = 500000;
+const uint64_t reserve_weight_out = 500000;
+const uint64_t fee = 2000;
 
 // Calculation
 const uint64_t out = bancor::get_amount_out( amount_in,
@@ -24,26 +24,7 @@ const uint64_t out = bancor::get_amount_out( amount_in,
                                              reserve_out,
                                              reserve_weight_out,
                                              fee );
-// => 27328
-```
-
-## Pseudocode Price Formula
-
-```c++
-function get_amount_out( amount_in,
-                         reserve_in,
-                         reserve_weight_in,
-                         reserve_out,
-                         reserve_weight_out,
-                         fee )
-{
-    weight_ratio = (reserve_weight_in / reserve_weight_out);
-    amount_in_with_fee = amount_in * (10000 - fee);
-    numerator = (reserve_in * 10000) / ((reserve_in * 10000) + amount_in_with_fee)
-    denominator = 1 - (numerator ** weight_ratio);
-    amount_out = reserve_out * denominator;
-    return amount_out;
-}
+// => 3732206312408
 ```
 
 ## Table of Content
@@ -51,10 +32,16 @@ function get_amount_out( amount_in,
 - [STATIC `get_amount_out`](#static-get_amount_out)
 - [STATIC `get_amount_in`](#static-get_amount_in)
 - [STATIC `quote`](#static-quote)
+- [STATIC `get_fee`](#static-get_fee)
+- [STATIC `get_reserve`](#static-get_reserve)
+- [STATIC `get_reserves`](#static-get_reserves)
+- [TABLE `converter`](#static-converter)
+- [TABLE `settings`](#static-settings)
+- [STRUCT `reserve`](#static-reserve)
 
 ## STATIC `get_amount_out`
 
-Given an input amount of an asset and pair reserves, returns the maximum output amount of the other asset
+Given an input amount of an asset and pair reserves, returns the output amount of the other asset
 
 ### params
 
@@ -63,7 +50,7 @@ Given an input amount of an asset and pair reserves, returns the maximum output 
 - `{uint64_t} reserve_weight_in` - reserve input weight
 - `{uint64_t} reserve_out` - reserve output
 - `{uint64_t} reserve_weight_out` - reserve output weight
-- `{uint8_t} [fee=30]` - (optional) trading fee (pips 1/100 of 1%)
+- `{uint64_t} fee` - trading fee (pips 1/10000 of 1%)
 
 ### example
 
@@ -74,11 +61,11 @@ const uint64_t reserve_in = 45851931234;
 const uint64_t reserve_weight_in = 50000;
 const uint64_t reserve_out = 125682033533;
 const uint64_t reserve_weight_out = 50000;
-const uint8_t fee = 30;
+const uint64_t fee = 2000;
 
 // Calculation
 const uint64_t amount_out = bancor::get_amount_out( amount_in, reserve_in, reserve_weight_in, reserve_out, reserve_weight_out );
-// => 27328
+// => 27300
 ```
 
 ## STATIC `get_amount_in`
@@ -92,7 +79,7 @@ Given an output amount of an asset and pair reserves, returns a required input a
 - `{uint64_t} reserve_weight_in` - reserve input weight
 - `{uint64_t} reserve_out` - reserve output
 - `{uint64_t} reserve_weight_out` - reserve output weight
-- `{uint8_t} [fee=30]` - (optional) trading fee (pips 1/100 of 1%)
+- `{uint64_t} fee` - trading fee (pips 1/10000 of 1%)
 
 ### example
 
@@ -103,7 +90,7 @@ const uint64_t reserve_in = 45851931234;
 const uint64_t reserve_weight_in = 50000;
 const uint64_t reserve_out = 125682033533;
 const uint64_t reserve_weight_out = 50000;
-const uint8_t fee = 30;
+const uint64_t fee = 2000;
 
 // Calculation
 const uint64_t amount_in = bancor::get_amount_in( amount_out, reserve_in, reserve_weight_in, reserve_out, reserve_weight_out, fee );
@@ -136,3 +123,88 @@ const uint64_t reserve_weight_b = 50000;
 const uint64_t amount_b = bancor::quote( amount_a, reserve_a, reserve_weight_a, reserve_b, reserve_weight_b );
 // => 27410
 ```
+
+## STATIC `get_fee`
+
+Get total fee
+
+### params
+
+- `{symbol_code} currency` - currency symbol code (ex: EOSBNT)
+- `{name} [code="bancorcnvrtr"_n]` - converter contract account
+
+### example
+
+```c++
+const uint64_t fee = bancor::multi::get_fee( {"EOSBNT"} );
+// => 2000
+```
+
+## STATIC `get_reserve`
+
+Get reserve from a currency
+
+### params
+
+- `{symbol_code} currency` - currency symbol code (ex: "EOSBNT")
+- `{symbol_code} reserve` - reserve symbol code (ex: "EOS")
+- `{name} [code="bancorcnvrtr"_n]` - converter contract account
+
+### example
+
+```c++
+const bancor::reserve reserve0 = bancor::multi::get_reserve( {"EOSBNT"}, {"EOS"} );
+const bancor::reserve reserve1 = bancor::multi::get_reserve( {"EOSBNT"}, {"BNT"} );
+// reserve0 => {"balance": {"contract": "eosio.token", "balance": "57988.4155 EOS"}, "weight": 500000}
+// reserve1 => {"balance": {"contract": "bntbntbntbnt", "balance": "216452.6259891919 BNT"}, "weight": 500000}
+```
+
+## STATIC `get_reserves`
+
+Get all reserves from a currency
+
+### params
+
+- `{symbol_code} currency` - currency symbol code (ex: "EOSBNT")
+- `{name} [code="bancorcnvrtr"_n]` - converter contract account
+
+### example
+
+```c++
+const auto [ reserve0, reserve1 ]  = bancor::multi::get_reserves( {"EOSBNT"} );
+// reserve0 => {"contract": "eosio.token", "weight": 500000, "balance": "57988.4155 EOS"}
+// reserve1 => {"contract": "bntbntbntbnt", "weight": 500000, "balance": "216452.6259891919 BNT"}
+```
+
+## TABLE `converter`
+
+This table stores the reserve balances and related information for the reserves of every converter in this contract
+
+### params
+
+- `{symbol} currency` - symbol of the smart token -- representing a share in the reserves of this converter
+- `{name} owner` - creator of the converter
+- `{uint64_t} fee` - conversion fee for this converter, applied on every hop
+- `{map<symbol_code, uint64_t>} reserve_weights` - reserve weights relative to the other reserves
+- `{map<symbol_code, extended_asset>} reserve_balances` - balances in each reserve
+- `{map<name, bool>} protocol_features` - [optional] protocol features for converter
+- `{map<name, string>} metadata_json` - [optional] additional metadata for converter
+
+## TABLE `settings`
+
+This table stores the global settings affecting all the converters in this contract
+
+### params
+
+- `{uint64_t} max_fee` - maximum conversion fee for converters in this contract
+- `{name} multi_token` - account name of contract for relay tokens
+- `{name} network` - account name of the bancor network contract
+- `{name} staking` - account name of contract for voting and staking
+
+## STRUCT `reserve`
+
+### params
+
+- `{name} contract` - reserve token contract
+- `{asset} balance` - amount in the reserve
+- `{uint64_t} weight` - reserve weight relative to the other reserves
