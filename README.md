@@ -1,6 +1,6 @@
 # **`Bancor`**
 
-[![Build Status](https://travis-ci.org/stableex/sx.bancor.svg?branch=master)](https://travis-ci.org/stableex/sx.bancor)
+[![Build Status](https://travis-ci.org/stableex/sx.bancor.svg?branch=main)](https://travis-ci.org/stableex/sx.bancor)
 
 > Peripheral EOSIO smart contracts for interacting with Bancor Protocol
 
