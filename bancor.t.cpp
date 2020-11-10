@@ -36,20 +36,20 @@ TEST_CASE( "get_amount_out #2 (pass)" ) {
     REQUIRE( amount_out == 27300 );
 }
 
-TEST_CASE( "get_amount_in #1 (pass)" ) {
-    // Inputs
-    const uint64_t amount_out = 27328;
-    const uint64_t reserve_in = 45851931234;
-    const uint64_t reserve_weight_in = 50000;
-    const uint64_t reserve_out = 125682033533;
-    const uint64_t reserve_weight_out = 50000;
-    const uint64_t fee = 2000;
+// TEST_CASE( "get_amount_in #1 (pass)" ) {
+//     // Inputs
+//     const uint64_t amount_out = 27328;
+//     const uint64_t reserve_in = 45851931234;
+//     const uint64_t reserve_weight_in = 50000;
+//     const uint64_t reserve_out = 125682033533;
+//     const uint64_t reserve_weight_out = 50000;
+//     const uint64_t fee = 2000;
 
-    // Calculation
-    const uint64_t amount_in = bancor::get_amount_in( amount_out, reserve_in, reserve_weight_in, reserve_out, reserve_weight_out, fee );
+//     // Calculation
+//     const uint64_t amount_in = bancor::get_amount_in( amount_out, reserve_in, reserve_weight_in, reserve_out, reserve_weight_out, fee );
 
-    REQUIRE( amount_in == 10000 );
-}
+//     REQUIRE( amount_in == 10000 );
+// }
 
 TEST_CASE( "quote #1 (pass)" ) {
     // Inputs
