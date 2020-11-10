@@ -19,7 +19,7 @@ namespace bancor {
      * - `{uint64_t} reserve_weight_in` - reserve input weight
      * - `{uint64_t} reserve_out` - reserve output
      * - `{uint64_t} reserve_weight_out` - reserve output weight
-     * - `{uint64_t} fee` - (optional) trading fee (pips 1/10000 of 1%)
+     * - `{uint64_t} fee` - trading fee (pips 1/10000 of 1%)
      *
      * ### example
      *
@@ -63,7 +63,7 @@ namespace bancor {
      * - `{uint64_t} reserve_weight_in` - reserve input weight
      * - `{uint64_t} reserve_out` - reserve output
      * - `{uint64_t} reserve_weight_out` - reserve output weight
-     * - `{uint64_t} [fee]` - trading fee (pips 1/100 of 1%)
+     * - `{uint64_t} fee` - trading fee (pips 1/10000 of 1%)
      *
      * ### example
      *
