@@ -152,7 +152,7 @@ namespace legacy {
      * ### params
      *
      * - `{name} code` - converter contract account (ex: "bnt2eoscnvrt"_n)
-     * - `{symbol_code} sym_code` - symbol code for the currency (ex: "BNT")
+     * - `{symbol_code} currency` - symbol code for the currency (ex: "BNT")
      *
      * ### example
      *
@@ -163,11 +163,11 @@ namespace legacy {
      * // reserve1 => {"contract": "bntbntbntbnt", "balance": "216452.6259891919 BNT", "weight": 500000}
      * ```
      */
-    static bancor::legacy::reserve get_reserve( const name code, const symbol_code sym_code )
+    static bancor::legacy::reserve get_reserve( const name code, const symbol_code currency )
     {
         bancor::legacy::reserves _reserves( code, code.value );
-        auto row = _reserves.get( sym_code.raw(), "sx.bancor::legacy: reserve contract does not exist");
-        const asset balance = eosio::token::get_balance( row.contract, code, sym_code);
+        auto row = _reserves.get( currency.raw(), "sx.bancor::legacy: reserve contract does not exist");
+        const asset balance = eosio::token::get_balance( row.contract, code, currency);
         return bancor::legacy::reserve{ row.contract, row.ratio, balance };
     }
 
