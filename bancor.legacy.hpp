@@ -117,7 +117,7 @@ namespace legacy {
         uint64_t    ratio;
         bool        p_enabled;
 
-        uint64_t primary_key() const { return contract.value; }
+        uint64_t primary_key() const { return currency.symbol.code().raw(); }
     };
     typedef eosio::multi_index< "reserves"_n, reserves_row > reserves;
 
@@ -152,23 +152,23 @@ namespace legacy {
      * ### params
      *
      * - `{name} code` - converter contract account (ex: "bnt2eoscnvrt"_n)
-     * - `{name} contract` - token contract for the currency (ex: "eosio.token"_n)
+     * - `{symbol_code} sym_code` - symbol code for the currency (ex: "BNT")
      *
      * ### example
      *
      * ```c++
-     * const bancor::reserve reserve0 = bancor::legacy::get_reserve( "bnt2eoscnvrt"_n, "eosio.token"_n );
-     * const bancor::reserve reserve1 = bancor::legacy::get_reserve( "bnt2eoscnvrt"_n, "bntbntbntbnt"_n );
-     * // reserve0 => {"balance": {"contract": "eosio.token", "balance": "57988.4155 EOS"}, "weight": 500000}
-     * // reserve1 => {"balance": {"contract": "bntbntbntbnt", "balance": "216452.6259891919 BNT"}, "weight": 500000}
+     * const bancor::reserve reserve0 = bancor::legacy::get_reserve( "bnt2eoscnvrt"_n, {"EOS"} );
+     * const bancor::reserve reserve1 = bancor::legacy::get_reserve( "bnt2eoscnvrt"_n, {"BNT"} );
+     * // reserve0 => {"contract": "eosio.token", "balance": "57988.4155 EOS", "weight": 500000}
+     * // reserve1 => {"contract": "bntbntbntbnt", "balance": "216452.6259891919 BNT", "weight": 500000}
      * ```
      */
-    static bancor::legacy::reserve get_reserve( const name code, const name contract )
+    static bancor::legacy::reserve get_reserve( const name code, const symbol_code sym_code )
     {
         bancor::legacy::reserves _reserves( code, code.value );
-        auto row = _reserves.get( contract.value, "sx.bancor::legacy: reserve contract does not exist");
-        const asset balance = eosio::token::get_balance( contract, code, row.currency.symbol.code());
-        return bancor::legacy::reserve{ contract, row.ratio, balance };
+        auto row = _reserves.get( sym_code.raw(), "sx.bancor::legacy: reserve contract does not exist");
+        const asset balance = eosio::token::get_balance( row.contract, code, sym_code);
+        return bancor::legacy::reserve{ row.contract, row.ratio, balance };
     }
 
     /**
@@ -194,7 +194,7 @@ namespace legacy {
         std::vector<bancor::legacy::reserve> reserves;
 
         for ( const auto row : _reserves ) {
-            reserves.push_back( bancor::legacy::get_reserve( code, row.contract ) );
+            reserves.push_back( bancor::legacy::get_reserve( code, row.currency.symbol.code() ) );
         }
         return reserves;
     }
