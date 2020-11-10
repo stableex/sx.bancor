@@ -28,8 +28,8 @@ namespace multi {
      * ### params
      *
      * - `{name} contract` - reserve token contract
-     * - `{asset} balance` - amount in the reserve
      * - `{uint64_t} weight` - reserve weight relative to the other reserves
+     * - `{asset} balance` - amount in the reserve
      */
     struct reserve {
         name        contract;
@@ -111,7 +111,7 @@ namespace multi {
     /**
      * ## STATIC `get_reserve`
      *
-     * Get reserves for a contract
+     * Get reserve from a currency
      *
      * ### params
      *
@@ -137,6 +137,36 @@ namespace multi {
 
         const extended_asset balance = row.reserve_balances.at(reserve);
         return bancor::multi::reserve{ balance.contract, row.reserve_weights.at(reserve), balance.quantity };
+    }
+
+    /**
+     * ## STATIC `get_reserves`
+     *
+     * Get all reserves from a currency
+     *
+     * ### params
+     *
+     * - `{symbol_code} currency` - currency symbol code (ex: "EOSBNT")
+     * - `{name} [code="bancorcnvrtr"_n]` - converter contract account
+     *
+     * ### example
+     *
+     * ```c++
+     * const auto [ reserve0, reserve1 ]  = bancor::multi::get_reserves( {"EOSBNT"} );
+     * // reserve0 => {"balance": {"contract": "eosio.token", "balance": "57988.4155 EOS"}, "weight": 500000}
+     * // reserve1 => {"balance": {"contract": "bntbntbntbnt", "balance": "216452.6259891919 BNT"}, "weight": 500000}
+     * ```
+     */
+    static std::vector<bancor::multi::reserve> get_reserves( const symbol_code currency, const name code = bancor::multi::code )
+    {
+        bancor::multi::converter _converter( code, code.value );
+        std::vector<bancor::multi::reserve> reserves;
+
+        auto row = _converter.get( currency.raw(), "bancor::multi - currency symbol does not exist");
+        for ( const auto itr : row.reserve_balances ) {
+            reserves.push_back( bancor::multi::get_reserve( currency, itr.first, code ) );
+        }
+        return reserves;
     }
 };
 }

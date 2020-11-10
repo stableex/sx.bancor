@@ -12,6 +12,7 @@ using eosio::asset;
 using eosio::check;
 
 using std::string;
+using std::vector;
 
 namespace legacy {
     // reference
@@ -132,6 +133,34 @@ namespace legacy {
         auto row = _reserves.get( contract.value, "bancor::legacy - reserve contract does not exist");
         const asset balance = eosio::token::get_balance( contract, code, row.currency.symbol.code());
         return bancor::legacy::reserve{ contract, row.ratio, balance };
+    }
+
+    /**
+     * ## STATIC `get_reserves`
+     *
+     * Get all reserves from a converter contract
+     *
+     * ### params
+     *
+     * - `{name} code` - converter contract account (ex: "bnt2eoscnvrt"_n)
+     *
+     * ### example
+     *
+     * ```c++
+     * const auto [ reserve0, reserve1 ]  = bancor::legacy::get_reserves( "bnt2eoscnvrt"_n );
+     * // reserve0 => {"balance": {"contract": "eosio.token", "balance": "57988.4155 EOS"}, "weight": 500000}
+     * // reserve1 => {"balance": {"contract": "bntbntbntbnt", "balance": "216452.6259891919 BNT"}, "weight": 500000}
+     * ```
+     */
+    static vector<bancor::legacy::reserve> get_reserves( const name code )
+    {
+        bancor::legacy::reserves _reserves( code, code.value );
+        std::vector<bancor::legacy::reserve> reserves;
+
+        for ( const auto row : _reserves ) {
+            reserves.push_back( bancor::legacy::get_reserve( code, row.contract ) );
+        }
+        return reserves;
     }
 };
 }
