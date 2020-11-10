@@ -104,7 +104,7 @@ namespace legacy {
     static uint64_t get_fee( const name code )
     {
         bancor::legacy::settings _settings( code, code.value );
-        check( _settings.exists(), "bancor::legacy - settings does not exists");
+        check( _settings.exists(), "sx.bancor::legacy: settings does not exists");
         return _settings.get().fee;
     }
 
@@ -130,7 +130,7 @@ namespace legacy {
     static bancor::legacy::reserve get_reserve( const name code, const name contract )
     {
         bancor::legacy::reserves _reserves( code, code.value );
-        auto row = _reserves.get( contract.value, "bancor::legacy - reserve contract does not exist");
+        auto row = _reserves.get( contract.value, "sx.bancor::legacy: reserve contract does not exist");
         const asset balance = eosio::token::get_balance( contract, code, row.currency.symbol.code());
         return bancor::legacy::reserve{ contract, row.ratio, balance };
     }

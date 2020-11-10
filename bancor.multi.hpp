@@ -105,7 +105,7 @@ namespace multi {
     static uint64_t get_fee( const symbol_code currency, const name code = bancor::multi::code )
     {
         bancor::multi::converter _converter( code, code.value );
-        return _converter.get( currency.raw(), "bancor::multi - reserve pair symbol code not found").fee;
+        return _converter.get( currency.raw(), "sx.bancor::multi: reserve pair symbol code not found").fee;
     }
 
     /**
@@ -131,9 +131,9 @@ namespace multi {
     static bancor::multi::reserve get_reserve( const symbol_code currency, const symbol_code reserve, const name code = bancor::multi::code )
     {
         bancor::multi::converter _converter( code, code.value );
-        auto row = _converter.get( currency.raw(), "bancor::multi - currency symbol does not exist");
-        check(row.reserve_balances.count(reserve), "bancor::multi - reserve balance symbol does not exist");
-        check(row.reserve_weights.count(reserve), "bancor::multi - reserve weights symbol does not exist");
+        auto row = _converter.get( currency.raw(), "sx.bancor::multi: currency symbol does not exist");
+        check(row.reserve_balances.count(reserve), "sx.bancor::multi: reserve balance symbol does not exist");
+        check(row.reserve_weights.count(reserve), "sx.bancor::multi: reserve weights symbol does not exist");
 
         const extended_asset balance = row.reserve_balances.at(reserve);
         return bancor::multi::reserve{ balance.contract, row.reserve_weights.at(reserve), balance.quantity };
@@ -162,7 +162,7 @@ namespace multi {
         bancor::multi::converter _converter( code, code.value );
         std::vector<bancor::multi::reserve> reserves;
 
-        auto row = _converter.get( currency.raw(), "bancor::multi - currency symbol does not exist");
+        auto row = _converter.get( currency.raw(), "sx.bancor::multi: currency symbol does not exist");
         for ( const auto itr : row.reserve_balances ) {
             reserves.push_back( bancor::multi::get_reserve( currency, itr.first, code ) );
         }
