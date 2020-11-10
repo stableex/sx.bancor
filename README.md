@@ -32,22 +32,19 @@ const uint64_t out = bancor::get_amount_out( amount_in,
 ```c++
 #include "bancor.multi.hpp"
 
-// Inputs
-const uint64_t amount_in = 1000000;
-const uint64_t reserve_in = 578125412;
-const uint64_t reserve_out = 2170087186740517;
-const uint64_t reserve_weight_in = 500000;
-const uint64_t reserve_weight_out = 500000;
-const uint64_t fee = 2000;
+const auto [ reserve0, reserve1 ] = bancor::multi::get_reserves( {"EOSBNT"} );
+// reserve0 => {"contract": "eosio.token", "weight": 500000, "balance": "57988.4155 EOS"}
+// reserve1 => {"contract": "bntbntbntbnt", "weight": 500000, "balance": "216452.6259891919 BNT"}
+```
 
-// Calculation
-const uint64_t out = bancor::get_amount_out( amount_in,
-                                             reserve_in,
-                                             reserve_weight_in,
-                                             reserve_out,
-                                             reserve_weight_out,
-                                             fee );
-// => 3732206312408
+**Bancor Legacy Converter**
+
+```c++
+#include "bancor.legacy.hpp"
+
+const auto [ reserve0, reserve1 ]  = bancor::legacy::get_reserves( "bnt2eoscnvrt"_n );
+// reserve0 => {"contract": "eosio.token", "weight": 500000, "balance": "55988.4608 EOS"}
+// reserve1 => {"contract": "bntbntbntbnt", "weight": 500000, "balance": "204278.1014136003 BNT"}
 ```
 
 ## Table of Content

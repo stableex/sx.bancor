@@ -184,7 +184,7 @@ namespace legacy {
      *
      * ```c++
      * const auto [ reserve0, reserve1 ]  = bancor::legacy::get_reserves( "bnt2eoscnvrt"_n );
-     * // reserve0 => {"contract": "eosio.token", "weight": 500000, "balance": "57988.4155 EOS"}
+     * // reserve0 => {"contract": "eosio.token", "weight": 500000, "balance": "55988.4608 EOS"}
      * // reserve1 => {"contract": "bntbntbntbnt", "weight": 500000, "balance": "216452.6259891919 BNT"}
      * ```
      */

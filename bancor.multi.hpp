@@ -193,9 +193,9 @@ namespace multi {
      * ### example
      *
      * ```c++
-     * const auto [ reserve0, reserve1 ]  = bancor::multi::get_reserves( {"EOSBNT"} );
-     * // reserve0 => {"contract": "eosio.token", "weight": 500000, "balance": "57988.4155 EOS"}
-     * // reserve1 => {"contract": "bntbntbntbnt", "weight": 500000, "balance": "216452.6259891919 BNT"}
+     * const auto [ reserve0, reserve1 ] = bancor::multi::get_reserves( {"EOSBNT"} );
+     * // reserve0 => {"contract": "eosio.token", "weight": 500000, "balance": "58671.7133 EOS"}
+     * // reserve1 => {"contract": "bntbntbntbnt", "weight": 500000, "balance": "213956.7397575675 BNT"}
      * ```
      */
     static std::vector<bancor::multi::reserve> get_reserves( const symbol_code currency, const name code = bancor::multi::code )
