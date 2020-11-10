@@ -18,7 +18,7 @@ using std::string;
 
 namespace multi {
     // reference
-    const name id = "bancormulti"_n;
+    const name id = "bnt.multi"_n;
     const name code = "bancorcnvrtr"_n;
     const string description = "Bancor MultiConverter";
 
