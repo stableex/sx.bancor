@@ -4,3 +4,4 @@ stderr
 *.wasm
 *.abi
 node_modules
+.vscode
