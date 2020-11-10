@@ -27,7 +27,7 @@ const uint64_t out = bancor::get_amount_out( amount_in,
 // => 3732206312408
 ```
 
-**Bancor Multi Converter**
+#### Bancor Multi Converter
 
 ```c++
 #include "bancor.multi.hpp"
@@ -37,7 +37,7 @@ const auto [ reserve0, reserve1 ] = bancor::multi::get_reserves( {"EOSBNT"} );
 // reserve1 => {"contract": "bntbntbntbnt", "weight": 500000, "balance": "216452.6259891919 BNT"}
 ```
 
-**Bancor Legacy Converter**
+#### Bancor Legacy Converter
 
 ```c++
 #include "bancor.legacy.hpp"
