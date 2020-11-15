@@ -17,7 +17,7 @@ using std::vector;
 namespace legacy {
     // reference
     const name id = "bnt.legacy"_n;
-    const name code = "bnt2eoscnvrt"_n;
+    const name code = "thisisbancor"_n;
     const string description = "Bancor Legacy Converter";
 
     /**
