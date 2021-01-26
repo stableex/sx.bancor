@@ -8,8 +8,6 @@ using namespace std;
 
 namespace bancor {
 
-    const name id = "bnt.generic"_n;
-    const name code = "thisisbancor"_n;
     /**
      * ## STATIC `get_amount_out`
      *
