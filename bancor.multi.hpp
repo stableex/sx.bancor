@@ -19,7 +19,8 @@ using std::string;
 namespace multi {
     // reference
     const name id = "bnt.multi"_n;
-    const name code = "bancorcnvrtr"_n;
+    const name code = "thisisbancor"_n;
+    const name config_code = "bancorcnvrtr"_n;
     const string description = "Bancor MultiConverter";
 
     /**
@@ -143,7 +144,7 @@ namespace multi {
      * // => 2000
      * ```
      */
-    static uint64_t get_fee( const symbol_code currency, const name code = bancor::multi::code )
+    static uint64_t get_fee( const symbol_code currency, const name code = bancor::multi::config_code )
     {
         bancor::multi::converter _converter( code, code.value );
         return _converter.get( currency.raw(), "sx.bancor::multi: reserve pair symbol code not found").fee;
@@ -169,7 +170,7 @@ namespace multi {
      * // reserve1 => {"contract": "bntbntbntbnt", "weight": 500000, "balance": "216452.6259891919 BNT"}
      * ```
      */
-    static bancor::multi::reserve get_reserve( const symbol_code currency, const symbol_code reserve, const name code = bancor::multi::code )
+    static bancor::multi::reserve get_reserve( const symbol_code currency, const symbol_code reserve, const name code = bancor::multi::config_code )
     {
         bancor::multi::converter _converter( code, code.value );
         auto row = _converter.get( currency.raw(), "sx.bancor::multi: currency symbol does not exist");
@@ -198,7 +199,7 @@ namespace multi {
      * // reserve1 => {"contract": "bntbntbntbnt", "weight": 500000, "balance": "213956.7397575675 BNT"}
      * ```
      */
-    static std::vector<bancor::multi::reserve> get_reserves( const symbol_code currency, const name code = bancor::multi::code )
+    static std::vector<bancor::multi::reserve> get_reserves( const symbol_code currency, const name code = bancor::multi::config_code )
     {
         bancor::multi::converter _converter( code, code.value );
         std::vector<bancor::multi::reserve> reserves;

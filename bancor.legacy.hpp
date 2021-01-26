@@ -18,6 +18,7 @@ namespace legacy {
     // reference
     const name id = "bnt.legacy"_n;
     const name code = "thisisbancor"_n;
+    const name config_code = "thisisbancor"_n;
     const string description = "Bancor Legacy Converter";
 
     /**
