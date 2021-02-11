@@ -10,6 +10,7 @@ namespace bancor {
 using eosio::name;
 using eosio::asset;
 using eosio::check;
+using eosio::symbol_code;
 
 using std::string;
 using std::vector;
